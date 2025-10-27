@@ -1,45 +1,42 @@
 //////////////////////////////
-// WORDLE CLONE + LEADERBOARD
+// WORDLE CLONE + LEADERBOARD + GUESS HISTORY
 //////////////////////////////
 
 const words = ["apple","brick","chair","dance","eagle"];
 let answer = words[Math.floor(Math.random() * words.length)];
 let attempts = 0;
 
-function startWordle(){
+// Store last 5 guesses
+function addToGuessHistory(guess){
+    let history = JSON.parse(localStorage.getItem("wordleHistory") || "[]");
+    history.push(guess);
+    if(history.length > 5) history.shift(); // Keep last 5
+    localStorage.setItem("wordleHistory", JSON.stringify(history));
+    displayGuessHistory();
+}
+
+function displayGuessHistory(){
     const container = document.getElementById("wordleGame");
-    container.innerHTML = `
-        <input type="text" id="guessInput" maxlength="5" placeholder="Guess 5-letter word">
-        <button onclick="checkWord()">Guess</button>
-        <div id="wordleOutput"></div>
-    `;
-    displayWordleLeaderboard();
-}
+    let oldHistory = document.getElementById("guessHistory");
+    if(oldHistory) oldHistory.remove();
 
-function checkWord(){
-    let guess = document.getElementById("guessInput").value.toLowerCase();
-    let output = document.getElementById("wordleOutput");
+    let history = JSON.parse(localStorage.getItem("wordleHistory") || "[]");
+    let histDiv = document.createElement("div");
+    histDiv.id = "guessHistory";
+    histDiv.innerHTML = "<h4>Last 5 Guesses</h4>";
 
-    if(guess.length !== 5){
-        alert("Word must be 5 letters!");
-        return;
-    }
-
-    attempts++;
-    const currentUser = localStorage.getItem("currentUser") || "Guest";
-
-    if(guess === answer){
-        output.innerHTML += `<p>✅ You guessed it in ${attempts} tries! The word was ${answer}.</p>`;
-        updateWordleLeaderboard(currentUser, attempts);
-        answer = words[Math.floor(Math.random() * words.length)];
-        attempts = 0;
+    if(history.length === 0){
+        histDiv.innerHTML += "<p>No guesses yet.</p>";
     } else {
-        output.innerHTML += `<p>❌ ${guess} is wrong!</p>`;
+        history.forEach(g => {
+            histDiv.innerHTML += `<p>${g}</p>`;
+        });
     }
 
-    document.getElementById("guessInput").value = "";
+    container.appendChild(histDiv);
 }
 
+// Wordle Leaderboard
 function updateWordleLeaderboard(user, attempts){
     let leaderboard = JSON.parse(localStorage.getItem("wordleLeaderboard") || "[]");
 
@@ -70,6 +67,45 @@ function displayWordleLeaderboard(){
     }
 
     container.appendChild(boardDiv);
+}
+
+function startWordle(){
+    const container = document.getElementById("wordleGame");
+    container.innerHTML = `
+        <input type="text" id="guessInput" maxlength="5" placeholder="Guess 5-letter word">
+        <button onclick="checkWord()">Guess</button>
+        <div id="wordleOutput"></div>
+    `;
+    displayWordleLeaderboard();
+    displayGuessHistory();
+}
+
+function checkWord(){
+    let guess = document.getElementById("guessInput").value.toLowerCase();
+    let output = document.getElementById("wordleOutput");
+
+    if(guess.length !== 5){
+        alert("Word must be 5 letters!");
+        return;
+    }
+
+    attempts++;
+    const currentUser = localStorage.getItem("currentUser") || "Guest";
+
+    addToGuessHistory(guess);
+
+    if(guess === answer){
+        output.innerHTML += `<p>✅ You guessed it in ${attempts} tries! The word was ${answer}.</p>`;
+        updateWordleLeaderboard(currentUser, attempts);
+        answer = words[Math.floor(Math.random() * words.length)];
+        attempts = 0;
+        localStorage.setItem("wordleHistory", "[]"); // reset history after win
+        displayGuessHistory();
+    } else {
+        output.innerHTML += `<p>❌ ${guess} is wrong!</p>`;
+    }
+
+    document.getElementById("guessInput").value = "";
 }
 
 startWordle();
