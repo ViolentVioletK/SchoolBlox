@@ -198,3 +198,60 @@ function resetCanvas(){
 }
 
 startColoring();
+//////////////////////////////
+// BITLIFE-STYLE TEXT GAME
+//////////////////////////////
+
+function startLifeSim() {
+    const container = document.getElementById("bitlifeGame");
+    container.innerHTML = ""; // Clear old content
+
+    const story = [
+        {
+            text: "You wake up on your first day of school. Do you go to class or skip?",
+            choices: [
+                {text: "Go to class", next: 1},
+                {text: "Skip", next: 2}
+            ]
+        },
+        {
+            text: "You learn a lot and make friends. Do you join a club or go home?",
+            choices: [
+                {text: "Join a club", next: 3},
+                {text: "Go home", next: 4}
+            ]
+        },
+        {
+            text: "You skip school and miss important lessons. Your grades drop. Game over.",
+            choices: []
+        },
+        {
+            text: "You join the science club and win a competition. Congrats! Game over.",
+            choices: []
+        },
+        {
+            text: "You go home and relax. Sometimes it's good to rest. Game over.",
+            choices: []
+        }
+    ];
+
+    let currentStep = 0;
+
+    function renderStep(step){
+        container.innerHTML = "";
+        const p = document.createElement("p");
+        p.textContent = story[step].text;
+        container.appendChild(p);
+
+        story[step].choices.forEach(choice => {
+            const btn = document.createElement("button");
+            btn.textContent = choice.text;
+            btn.onclick = () => renderStep(choice.next);
+            container.appendChild(btn);
+        });
+    }
+
+    renderStep(currentStep);
+}
+
+startLifeSim();
