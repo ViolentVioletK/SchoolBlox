@@ -119,3 +119,20 @@ updateLibrary();
     margin: 10px 0;
     background-color: #f0f0f0;
 }
+#sudokuTable input {
+    width: 30px;
+    text-align: center;
+    margin: 1px;
+}
+
+.wsCell {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    text-align: center;
+    line-height: 30px;
+    border: 1px solid gray;
+    margin: 1px;
+    cursor: pointer;
+    font-weight: bold;
+}
