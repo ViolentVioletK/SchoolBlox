@@ -1,49 +1,37 @@
-// Admin Button
-document.getElementById("adminBtn").addEventListener("click", function() {
-    let password = prompt("Enter admin password:");
-    if (password === "Aug.29201215!") {
-        alert("Access granted! You can now edit the site.");
-        showAdminPanel();
-    } else {
-        alert("Wrong password! Access denied.");
-    }
-});
+// Signup Function
+function signup(){
+    let user = document.getElementById("signupUser").value;
+    let pass = document.getElementById("signupPass").value;
 
-// Show Admin Panel
-function showAdminPanel() {
-    let panel = document.getElementById("adminPanel");
-    if (!panel) {
-        panel = document.createElement("div");
-        panel.id = "adminPanel";
-        panel.style.border = "1px solid black";
-        panel.style.padding = "10px";
-        panel.style.margin = "10px";
-        panel.innerHTML = `
-            <h3>Admin Panel</h3>
-            <button onclick="addBook()">Add Book</button>
-            <button onclick="removeBook()">Remove Book</button>
-            <button onclick="addGame()">Add Game</button>
-            <button onclick="approveBook()">Approve Submitted Book</button>
-        `;
-        document.body.prepend(panel);
-    } else {
-        panel.style.display = "block";
+    if(!user || !pass){
+        alert("Fill both fields!");
+        return;
     }
+
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    if(users[user]){
+        alert("Username already exists!");
+        return;
+    }
+
+    users[user] = pass;
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("Account created! You can now login.");
+    document.getElementById("signupUser").value = "";
+    document.getElementById("signupPass").value = "";
 }
 
-// Placeholder Admin Functions
-function addBook() { alert("Add Book clicked"); }
-function removeBook() { alert("Remove Book clicked"); }
-function addGame() { alert("Add Game clicked"); }
-function approveBook() { alert("Approve Book clicked"); }
+// Login Function
+function login(){
+    let user = document.getElementById("loginUser").value;
+    let pass = document.getElementById("loginPass").value;
 
-// Book Form Submission
-const bookForm = document.getElementById("bookForm");
-if(bookForm) {
-    bookForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        document.getElementById("submissionMessage").innerText = "Sending to creator to verify the book before adding to the library...";
-        alert("Simulated email sent to creator!");
-        bookForm.reset();
-    });
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    if(users[user] && users[user] === pass){
+        localStorage.setItem("currentUser", user);
+        document.getElementById("loginMessage").innerText = `Welcome, ${user}! Redirecting...`;
+        setTimeout(()=>{ window.location.href = "library.html"; }, 1000);
+    } else {
+        alert("Invalid username or password!");
+    }
 }
