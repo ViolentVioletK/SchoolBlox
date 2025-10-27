@@ -196,46 +196,68 @@ function resetCanvas(){
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0,0,canvas.width, canvas.height);
 }
-
-startColoring();
 //////////////////////////////
-// BITLIFE-STYLE TEXT GAME
+// BITLIFE-STYLE TEXT GAME WITH STATS
 //////////////////////////////
 
 function startLifeSim() {
     const container = document.getElementById("bitlifeGame");
     container.innerHTML = ""; // Clear old content
 
+    // Character stats
+    let stats = {
+        Happiness: 50,
+        Health: 50,
+        Money: 50
+    };
+
     const story = [
         {
             text: "You wake up on your first day of school. Do you go to class or skip?",
             choices: [
-                {text: "Go to class", next: 1},
-                {text: "Skip", next: 2}
+                {text: "Go to class", next: 1, effects: {Happiness: +5, Health: 0, Money: 0}},
+                {text: "Skip school", next: 2, effects: {Happiness: -10, Health: 0, Money: 0}}
             ]
         },
         {
             text: "You learn a lot and make friends. Do you join a club or go home?",
             choices: [
-                {text: "Join a club", next: 3},
-                {text: "Go home", next: 4}
+                {text: "Join a club", next: 3, effects: {Happiness: +10, Health: 0, Money: 0}},
+                {text: "Go home", next: 4, effects: {Happiness: +5, Health: +5, Money: 0}}
             ]
         },
         {
             text: "You skip school and miss important lessons. Your grades drop. Game over.",
-            choices: []
+            choices: [],
+            effects: {Happiness: -5, Health: 0, Money: 0}
         },
         {
             text: "You join the science club and win a competition. Congrats! Game over.",
-            choices: []
+            choices: [],
+            effects: {Happiness: +20, Health: 0, Money: +50}
         },
         {
             text: "You go home and relax. Sometimes it's good to rest. Game over.",
-            choices: []
+            choices: [],
+            effects: {Happiness: +10, Health: +10, Money: 0}
         }
     ];
 
     let currentStep = 0;
+
+    function updateStats(effects){
+        for(let key in effects){
+            stats[key] += effects[key];
+            if(stats[key] > 100) stats[key] = 100;
+            if(stats[key] < 0) stats[key] = 0;
+        }
+    }
+
+    function renderStats(){
+        const statsDiv = document.createElement("div");
+        statsDiv.innerHTML = `<strong>Stats:</strong> Happiness: ${stats.Happiness}, Health: ${stats.Health}, Money: ${stats.Money}`;
+        return statsDiv;
+    }
 
     function renderStep(step){
         container.innerHTML = "";
@@ -243,10 +265,34 @@ function startLifeSim() {
         p.textContent = story[step].text;
         container.appendChild(p);
 
+        container.appendChild(renderStats());
+
+        if(story[step].choices.length === 0){
+            // Game over, apply effects
+            if(story[step].effects) updateStats(story[step].effects);
+            const endStats = document.createElement("p");
+            endStats.innerHTML = `<strong>Final Stats:</strong> Happiness: ${stats.Happiness}, Health: ${stats.Health}, Money: ${stats.Money}`;
+            container.appendChild(endStats);
+
+            const restartBtn = document.createElement("button");
+            restartBtn.textContent = "Restart Game";
+            restartBtn.onclick = () => {
+                stats = {Happiness:50, Health:50, Money:50};
+                renderStep(0);
+            };
+            container.appendChild(restartBtn);
+
+            container.appendChild(renderStats());
+            return;
+        }
+
         story[step].choices.forEach(choice => {
             const btn = document.createElement("button");
             btn.textContent = choice.text;
-            btn.onclick = () => renderStep(choice.next);
+            btn.onclick = () => {
+                if(choice.effects) updateStats(choice.effects);
+                renderStep(choice.next);
+            };
             container.appendChild(btn);
         });
     }
