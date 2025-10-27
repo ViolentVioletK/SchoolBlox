@@ -1,13 +1,19 @@
-// Wordle clone - super simple
+//////////////////////////////
+// WORDLE CLONE + LEADERBOARD
+//////////////////////////////
+
 const words = ["apple","brick","chair","dance","eagle"];
 let answer = words[Math.floor(Math.random() * words.length)];
 let attempts = 0;
 
 function startWordle(){
     const container = document.getElementById("wordleGame");
-    container.innerHTML = `<input type="text" id="guessInput" maxlength="5" placeholder="Guess 5-letter word">
-                           <button onclick="checkWord()">Guess</button>
-                           <div id="wordleOutput"></div>`;
+    container.innerHTML = `
+        <input type="text" id="guessInput" maxlength="5" placeholder="Guess 5-letter word">
+        <button onclick="checkWord()">Guess</button>
+        <div id="wordleOutput"></div>
+    `;
+    displayWordleLeaderboard();
 }
 
 function checkWord(){
@@ -20,8 +26,11 @@ function checkWord(){
     }
 
     attempts++;
+    const currentUser = localStorage.getItem("currentUser") || "Guest";
+
     if(guess === answer){
         output.innerHTML += `<p>✅ You guessed it in ${attempts} tries! The word was ${answer}.</p>`;
+        updateWordleLeaderboard(currentUser, attempts);
         answer = words[Math.floor(Math.random() * words.length)];
         attempts = 0;
     } else {
@@ -31,8 +40,44 @@ function checkWord(){
     document.getElementById("guessInput").value = "";
 }
 
+function updateWordleLeaderboard(user, attempts){
+    let leaderboard = JSON.parse(localStorage.getItem("wordleLeaderboard") || "[]");
+
+    leaderboard.push({user, attempts, time: new Date().toLocaleTimeString()});
+    localStorage.setItem("wordleLeaderboard", JSON.stringify(leaderboard));
+    displayWordleLeaderboard();
+}
+
+function displayWordleLeaderboard(){
+    const container = document.getElementById("wordleGame");
+    if(!container) return;
+
+    let oldBoard = document.getElementById("wordleLeaderboard");
+    if(oldBoard) oldBoard.remove();
+
+    let leaderboard = JSON.parse(localStorage.getItem("wordleLeaderboard") || "[]");
+    let boardDiv = document.createElement("div");
+    boardDiv.id = "wordleLeaderboard";
+    boardDiv.innerHTML = "<h3>Wordle Leaderboard</h3>";
+
+    if(leaderboard.length === 0){
+        boardDiv.innerHTML += "<p>No one has played yet.</p>";
+    } else {
+        leaderboard.sort((a,b)=>a.attempts - b.attempts);
+        leaderboard.forEach(entry=>{
+            boardDiv.innerHTML += `<p>${entry.user} guessed in ${entry.attempts} tries at ${entry.time}</p>`;
+        });
+    }
+
+    container.appendChild(boardDiv);
+}
+
 startWordle();
-// Simple interactive Sudoku
+
+//////////////////////////////
+// SUDOKU
+//////////////////////////////
+
 function startSudoku() {
     const container = document.getElementById("sudokuGame");
     container.innerHTML = "<table id='sudokuTable'></table>";
@@ -54,12 +99,15 @@ function startSudoku() {
 }
 
 startSudoku();
-// Word Search
+
+//////////////////////////////
+// WORD SEARCH
+//////////////////////////////
+
 function startWordSearch() {
     const container = document.getElementById("wordsearchGame");
     container.innerHTML = "<div id='wordsearchGrid'></div><p>Find these words: CAT, DOG, SUN</p>";
 
-    const words = ["CAT", "DOG", "SUN"];
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let gridHTML = "";
 
@@ -74,7 +122,6 @@ function startWordSearch() {
 
     container.innerHTML += gridHTML;
 
-    // Optional: clicking highlights letters
     document.querySelectorAll(".wsCell").forEach(cell => {
         cell.onclick = function() {
             if (cell.style.backgroundColor === "yellow") cell.style.backgroundColor = "";
@@ -84,7 +131,11 @@ function startWordSearch() {
 }
 
 startWordSearch();
-// Coloring Book
+
+//////////////////////////////
+// COLORING BOOK
+//////////////////////////////
+
 function startColoring() {
     const canvas = document.getElementById("coloringCanvas");
     const ctx = canvas.getContext("2d");
@@ -102,6 +153,12 @@ function startColoring() {
         ctx.fillStyle = "#FF0000"; // red brush
         ctx.fillRect(x, y, 5, 5);
     };
+}
+
+function resetCanvas(){
+    const canvas = document.getElementById("coloringCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width, canvas.height);
 }
 
 startColoring();
