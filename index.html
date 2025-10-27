@@ -5,60 +5,63 @@
     <title>SchoolBlox</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
-        input { margin: 5px; padding: 5px; }
-        button { margin: 5px; padding: 5px; }
-        .gameCard { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        input, textarea, button { margin: 5px; padding: 5px; }
+        section { margin-bottom: 20px; border: 2px solid #333; padding: 10px; }
+        #adminButton { margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <h1>Welcome to SchoolBlox</h1>
 
-    <!-- LOGIN / SIGN-UP AREA -->
-    <div id="loginContainer" class="gameCard">
+    <!-- SECTION 1: LOGIN / SIGN-UP -->
+    <section id="sectionLogin">
         <h2>Login or Sign Up</h2>
         <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <br>
+        <input type="password" id="password" placeholder="Password"><br>
         <button onclick="login()">Login</button>
         <button onclick="signUp()">Sign Up</button>
         <p id="loginMessage"></p>
-    </div>
+    </section>
 
     <!-- ADMIN BUTTON -->
     <button id="adminButton" onclick="showAdminPanel()" style="display:none;">Admin Panel</button>
 
-    <!-- ACTIVITIES SECTION -->
-    <div class="gameCard">
-        <h2>Life Simulator</h2>
+    <!-- SECTION 2: ACTIVITIES / GAMES -->
+    <section id="sectionGames">
+        <h2>Activities</h2>
         <div id="bitlifeGame"></div>
-    </div>
+    </section>
+
+    <!-- SECTION 3: BOOK CREATOR -->
+    <section id="sectionBooks">
+        <h2>Book Creator</h2>
+        <p>Create your own book and submit it!</p>
+        <input type="text" id="bookTitle" placeholder="Book Title"><br>
+        <textarea id="bookContent" placeholder="Write your book here..." rows="6" cols="40"></textarea><br>
+        <button onclick="submitBook()">Submit Book</button>
+        <p id="bookMessage"></p>
+    </section>
 
     <script>
         /////////////////////////////
         // LOGIN & SIGN-UP SYSTEM
         /////////////////////////////
-
         const ADMIN_PASSWORD = "Aug.29201215!";
 
         function signUp(){
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value;
-
             if(!username || !password){
                 document.getElementById("loginMessage").textContent = "Enter both username and password.";
                 return;
             }
-
             let users = JSON.parse(localStorage.getItem("users") || "{}");
-
             if(users[username]){
                 document.getElementById("loginMessage").textContent = "Username already exists.";
                 return;
             }
-
             users[username] = {password: password};
             localStorage.setItem("users", JSON.stringify(users));
-
             localStorage.setItem("currentUser", username);
             document.getElementById("loginMessage").textContent = "Sign up successful! Logged in as " + username;
             checkAdminButton(username, password);
@@ -67,9 +70,7 @@
         function login(){
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value;
-
             let users = JSON.parse(localStorage.getItem("users") || "{}");
-
             if(users[username] && users[username].password === password){
                 localStorage.setItem("currentUser", username);
                 document.getElementById("loginMessage").textContent = "Logged in as " + username;
@@ -89,7 +90,12 @@
         }
 
         function showAdminPanel(){
-            alert("Welcome to the admin panel! Here you can add/edit content.");
+            let action = prompt("Admin Panel:\n1. Review submitted books\nEnter option number:");
+            if(action === "1"){
+                reviewBooks();
+            } else {
+                alert("No action selected.");
+            }
         }
 
         window.onload = function(){
@@ -100,36 +106,23 @@
                 checkAdminButton(currentUser, pass);
                 document.getElementById("loginMessage").textContent = "Logged in as " + currentUser;
             }
+            startLifeSim();
         }
 
         /////////////////////////////
         // BITLIFE-STYLE GAME
         /////////////////////////////
-
         function startLifeSim() {
             const container = document.getElementById("bitlifeGame");
             container.innerHTML = "";
 
             let stats = {Happiness: 50, Health: 50, Money: 50};
-
             const story = [
-                {
-                    text: "You wake up on your first day of school. Go to class or skip?",
-                    choices: [
-                        {text: "Go to class", next: 1, effects: {Happiness: +5}},
-                        {text: "Skip school", next: 2, effects: {Happiness: -10}}
-                    ]
-                },
-                {
-                    text: "You learn a lot and make friends. Join a club or go home?",
-                    choices: [
-                        {text: "Join a club", next: 3, effects: {Happiness: +10, Money: +20}},
-                        {text: "Go home", next: 4, effects: {Happiness: +5, Health: +5}}
-                    ]
-                },
-                { text: "You skipped school and failed. Game over.", choices: [], effects: {Happiness:-5} },
-                { text: "You joined a club and won a competition! Game over.", choices: [], effects: {Happiness:+20, Money:+50} },
-                { text: "You went home to rest. Game over.", choices: [], effects: {Happiness:+10, Health:+10} }
+                { text: "You wake up on your first day of school. Go to class or skip?", choices:[{text:"Go to class", next:1, effects:{Happiness:+5}}, {text:"Skip school", next:2, effects:{Happiness:-10}}]},
+                { text: "You learn a lot and make friends. Join a club or go home?", choices:[{text:"Join a club", next:3, effects:{Happiness:+10, Money:+20}}, {text:"Go home", next:4, effects:{Happiness:+5, Health:+5}}]},
+                { text: "You skipped school and failed. Game over.", choices:[], effects:{Happiness:-5} },
+                { text: "You joined a club and won a competition! Game over.", choices:[], effects:{Happiness:+20, Money:+50} },
+                { text: "You went home to rest. Game over.", choices:[], effects:{Happiness:+10, Health:+10} }
             ];
 
             let currentStep = 0;
@@ -153,22 +146,17 @@
                 const p = document.createElement("p");
                 p.textContent = story[step].text;
                 container.appendChild(p);
-
                 container.appendChild(renderStats());
 
                 if(story[step].choices.length === 0){
                     if(story[step].effects) updateStats(story[step].effects);
-
                     const endStats = document.createElement("p");
                     endStats.innerHTML = `<strong>Final Stats:</strong> Happiness: ${stats.Happiness}, Health: ${stats.Health}, Money: ${stats.Money}`;
                     container.appendChild(endStats);
 
                     const restartBtn = document.createElement("button");
                     restartBtn.textContent = "Restart Game";
-                    restartBtn.onclick = () => {
-                        stats = {Happiness:50, Health:50, Money:50};
-                        renderStep(0);
-                    };
+                    restartBtn.onclick = () => { stats={Happiness:50, Health:50, Money:50}; renderStep(0); };
                     container.appendChild(restartBtn);
 
                     container.appendChild(renderStats());
@@ -189,7 +177,50 @@
             renderStep(currentStep);
         }
 
-        startLifeSim();
+        /////////////////////////////
+        // BOOK CREATOR SYSTEM
+        /////////////////////////////
+        function submitBook() {
+            const currentUser = localStorage.getItem("currentUser");
+            if(!currentUser){
+                document.getElementById("bookMessage").textContent = "You must be logged in to submit a book.";
+                return;
+            }
+
+            const title = document.getElementById("bookTitle").value.trim();
+            const content = document.getElementById("bookContent").value.trim();
+            if(!title || !content){
+                document.getElementById("bookMessage").textContent = "Please enter both a title and content.";
+                return;
+            }
+
+            let books = JSON.parse(localStorage.getItem("submittedBooks") || "[]");
+            books.push({author: currentUser, title: title, content: content, status: "Pending"});
+            localStorage.setItem("submittedBooks", JSON.stringify(books));
+
+            document.getElementById("bookMessage").textContent = "Book submitted! Awaiting approval.";
+            document.getElementById("bookTitle").value = "";
+            document.getElementById("bookContent").value = "";
+
+            console.log(`New book submitted by ${currentUser}: "${title}" - check with admin to approve.`);
+        }
+
+        function reviewBooks() {
+            const books = JSON.parse(localStorage.getItem("submittedBooks") || "[]");
+            if(books.length === 0){
+                alert("No books submitted yet.");
+                return;
+            }
+
+            let message = "Books awaiting approval:\n\n";
+            books.forEach((book, index) => {
+                message += `${index+1}. "${book.title}" by ${book.author} (Status: ${book.status})\n`;
+            });
+
+            alert(message);
+        }
+
     </script>
 </body>
 </html>
+
