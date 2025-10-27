@@ -2,22 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Activities</title>
+    <title>SchoolBlox Activities</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
 </head>
 <body>
-    <button id="adminBtn">Admin</button>
-    <h1>Activities & Games</h1>
-    <ul>
-        <li>Wordle Clone</li>
-        <li>Life Simulator</li>
-        <li>Word Puzzle</li>
-        <li>Sudoku</li>
-        <li>Word Search</li>
-        <li>Coloring Book</li>
-        <li>Tic-Tac-Toe</li>
-        <li>Hangman</li>
-    </ul>
+    <nav>
+        <a href="library.html">Library</a> |
+        <a href="activities.html">Activities</a> |
+        <a href="bookcreator.html">Create Book</a>
+    </nav>
+
+    <h1>Activities</h1>
+
+    <div id="games">
+        <div class="gameCard">
+            <h2>Wordle Clone</h2>
+            <div id="wordleGame">Loading game...</div>
+        </div>
+        <div class="gameCard">
+            <h2>Sudoku</h2>
+            <div id="sudokuGame">Loading game...</div>
+        </div>
+        <div class="gameCard">
+            <h2>Word Search</h2>
+            <div id="wordsearchGame">Loading game...</div>
+        </div>
+        <div class="gameCard">
+            <h2>Coloring Book</h2>
+            <canvas id="coloringCanvas" width="400" height="400" style="border:1px solid black;"></canvas>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="games.js"></script> <!-- New file for games logic -->
 </body>
 </html>
