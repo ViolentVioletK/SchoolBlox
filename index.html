@@ -1,18 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SchoolBlox - Login</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
-</head>
-<body>
-    <button id="adminBtn">Admin</button>
-    <h1>Welcome to SchoolBlox</h1>
-    <form id="loginForm">
-        <input type="text" placeholder="Username" required><br>
-        <input type="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
-    </form>
-</body>
-</html>
+<h1>Welcome to SchoolBlox</h1>
+
+<div id="authForms">
+  <!-- Signup Form -->
+  <div id="signupDiv">
+    <h2>Sign Up</h2>
+    <input type="text" id="signupUser" placeholder="Username" required><br>
+    <input type="password" id="signupPass" placeholder="Password" required><br>
+    <button onclick="signup()">Sign Up</button>
+  </div>
+
+  <!-- Login Form -->
+  <div id="loginDiv">
+    <h2>Login</h2>
+    <input type="text" id="loginUser" placeholder="Username" required><br>
+    <input type="password" id="loginPass" placeholder="Password" required><br>
+    <button onclick="login()">Login</button>
+  </div>
+</div>
+
+<p id="loginMessage"></p>
